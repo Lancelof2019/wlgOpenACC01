@@ -51,7 +51,7 @@ using namespace cv;
 			}
 		}
 	      #pragma acc update self(src.matImg[:src.arows][:src.acols])
-               #pragma acc exit data delete(pLablel[:src.arows*src.acols],src,src.matImg[:src.arows][:src.acols])
+              #pragma acc exit data delete(pLablel[:src.arows*src.acols],src,src.matImg[:src.arows][:src.acols])
 	}
 
  }
