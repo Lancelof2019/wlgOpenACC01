@@ -15,96 +15,9 @@ Array2D<int> &WatershedAlg::distanceTransform(Array2D<int>& matArr, Array2D<int>
         int dy[NUMSIZE]={0, 0, -1, 1, -1,  1, 1, -1};
         int pixelThreshold=55;
 
-
-        
-
-//******It makes the nearest piexel along 0 point sohow up and become the edge pixel
-//          //#pragma omp simd
-       //
-     /*   #pragma omp parallel for
-        for(int i = 0; i < rows; i++) {
-         #pragma omp parallel for
-	   for(int j = 0; j < cols; j++) {
-                if(matArr(i,j)!= ZERO) {
-                    continue;
-                }
-                //this is the part that sepreated from the edge
-                #pragma omp simd 
-                for(int h = 0; h < NSIZE; h++) {
-                    int nextX = i + dx[h];
-                    int nextY = j + dy[h];
-
-                    if( nextX < 0 || nextY < 0 || nextX >= rows || nextY >= cols ) {
-                        continue;
-                    }
-
-                    if( !visArr(nextX,nextY) && matArr(nextX,nextY)== ONE){ //(int) image.at<uchar>(nextX, nextY) == ONE ) {
-                        visArr(nextX,nextY) = true;
-
-			matArr(nextX,nextY)=pixelThreshold;
-			plots(nextX,nextY)=1;
-			// it would be more efficient too set pcounter here already and plotx, ploty if possible???
-
-                    }
-                }
-                
-        }
-        
-     }
-
-*/
-
-
-
-
-
-
-//************new changes*********************
-
-
-
-
-
-/*
-
-  #pragma omp parallel for
-        for(int i = 0; i < rows; i++) {
-        // #pragma omp parallel for
-           for(int j = 0; j < cols; j++) {
-                if(matArr(i,j)== ZERO && matArr(i,j)!=pixelThreshold) {
-                    continue;
-                }
-                //this is the part that sepreated from the edge
-                //#pragma omp simd 
-                for(int h = 0; h < NSIZE; h++) {
-                    int nextX = i + dx[h];
-                    int nextY = j + dy[h];
-
-                    if( nextX < 0 || nextY < 0 || nextX >= rows || nextY >= cols ) {
-                        continue;
-                    }
-                 // if(matArr(i,j)!=pixelThreshold){
-                    if( matArr(nextX,nextY)==ZERO){ //(int) image.at<uchar>(nextX, nextY) == ONE ) {
-                       // visArr(nextX,nextY) = true;
-
-                        matArr(i,j)=pixelThreshold;
-                        plots(i,j)=1;
-                        // it would be more efficient too set pcounter here already and plotx, ploty if possible???
-
-                    }
-               // }
-               }
-        }
-
-     }
-*/
-
-//************************updated new changes*****************
-//int vcounter=0;
 int boundcounter=0;
 int zerocounter=0;
-
-//#pragma omp parallel for reduction(+:boundcounter,zerocounter)	   
+ 
 
 #pragma acc enter data copyin(matArr,visArr,plots,matArr.matImg[:matArr.arows][:matArr.acols],visArr.matImg[:visArr.arows][:visArr.acols],plots.matImg[:plots.arows][:plots.acols],dx[:NUMSIZE],dy[:NUMSIZE])
 #pragma acc parallel loop collapse(2)  default(present)
@@ -119,8 +32,7 @@ for(int i=0;i<matArr.arows;i++){
             }
 
         for(int k=0;k<NSIZE;k++){
-	   // if(!visArr(arr4D[i][j][0][k],arr4D[i][j][1][k])){
-       //     if(arr4D[i][j][0][k]>-1 && arr4D[i][j][1][k]>-1 && arr4D[i][j][0][k]<rows && arr4D[i][j][1][k]<cols){
+
               
            
                     int nextX = i + dx[k];
@@ -148,41 +60,7 @@ for(int i=0;i<matArr.arows;i++){
 #pragma acc update self(matArr.matImg[:matArr.arows][:matArr.acols],visArr.matImg[:visArr.arows][:visArr.acols],plots.matImg[:plots.arows][:plots.acols])
 #pragma acc exit data delete(matArr,visArr,plots,matArr.matImg[:matArr.arows][:matArr.acols],visArr.matImg[:visArr.arows][:visArr.acols],plots.matImg[:plots.arows][:plots.acols])
 
-  // for(int j = 0; j < cols; j++) {
-    //   fout21<<((int)matArr(i,j))<<",";
-      //   }
-        //  fout21<<endl;
-			        //  }
-//     fout21.close();
 
-    //******It makes the nearest piexel along 0 point sohow up and become the edge pixel
-    
-//edge is equal to 50
-      
- 
- /*
-   int maxVal=0;
-        int pcounter=0;
-//        #pragma omp parallel for reduction(+:pcounter)
-// this is very inefficient on GPU (reduction kernel!) and serial on CPU !!!
-	for(int i=0;i<rows;i++){
-  //         #pragma omp parallel for
-           for(int j=0;j<cols;j++){
-             if(plots(i,j)==1){
-                  plotx(pcounter)=i;
-		  ploty(pcounter)=j;
-                 // qx.push(i);
-		 // qy.push(j);
-		  pcounter++;
-	     }
-              
-
-	   }
-
-
-	}
-
-*/
 
 int i=0;
 
@@ -200,8 +78,7 @@ int i=0;
                  // qy.push(j);
                   pcounter++;
              }
-              
-
+            
            }
 	}
 
@@ -221,7 +98,7 @@ while(plotx(i)!=-1){
              i++;
              qcounter++;
             bool isBigger = true;//check
-          // #pragma omp simd
+
             for(int h = 0; h < NUMSIZE; h++) {
                 int nextX = crtX + dx[h];
                 int nextY = crtY + dy[h];
@@ -258,103 +135,7 @@ while(plotx(i)!=-1){
             if(isBigger) {
                 markers(crtX,crtY)=2;
              }
-          }
-
-
-/*
-int allPixel=rows*cols;
-int maxvalue=0;
-//bool tmpVal=true;
-//while((allPixel-boundcounter-zerocounter)!=0){
-bool sign=true;
-for(int h=0;h<6;h++){
-bool isBigger = true;
-//tmpVal=true;
-#pragma omp parallel for
-for(int i=0;i<rows;i++){
-  for(int j=0;j<cols;j++){
-
-   if(matArr(i,j)!=ZERO){
-    for(int k = 0; k < 4; k++){
-     if(arr4D[i][j][0][k]>-1 && arr4D[i][j][1][k]>-1 && arr4D[i][j][0][k]<rows && arr4D[i][j][1][k]<cols){
-       if(visArr(arr4D[i][j][0][k],arr4D[i][j][1][k])==true&&sign&&matArr(arr4D[i][j][0][k],arr4D[i][j][1][k])!=0&&matArr(arr4D[i][j][0][k],arr4D[i][j][1][k])!=254&&!visArr(i,j)){//&&*visBool(i,j)){
-               //if( matArr(i,j) > matArr(arr4D[i][j][0][k],arr4D[i][j][1][k])) {
-                 //   isBigger = false;
-
-              //  }
-              
-              //tmptr=&tmpVal;
-             if(matArr(i,j)> matArr(arr4D[i][j][0][k],arr4D[i][j][1][k])){
-  //              tmpVal=false;
-                isBigger = false;
-                //visBool(i,j) = &tmpVal;
-		//visArr(i,j)=true;
-		if(maxvalue<=matArr(arr4D[i][j][0][k],arr4D[i][j][1][k])){
-                   maxvalue=matArr(arr4D[i][j][0][k],arr4D[i][j][1][k]);
-
-		}
-                matArr(i,j)=min((maxvalue+1), 254);
-                boundcounter+=1;
-                //curthreshold=matArr(i,j);
-                }
-            // if(maxVal<=matArr(i,j){
-                  //     maxVal=matArr(i,j);
-
-                  //  }
-               else{
-                     //isBigger = true;
-                     markers(arr4D[i][j][0][k],arr4D[i][j][1][k])=2;
-                  }
-                
-          
-         }
-       }
-     }
-
-//      if(isBigger) {
-  //      markers(arr4D[i][j][0][k],arr4D[i][j][1][k])=2;
-    //   }
-
-
       }
-    }
-    
-  }
-
-}
-
-
-
-cout<<"left point:"<<allPixel-boundcounter-zerocounter<<endl;
-
-//}
-*/
-  //      string filename5="../test5new.txt";
-   //     ofstream fout5(filename5);
-      /*  string filename21="/opt/test21.txt";
-        ofstream fout21(filename21);
-        string filename24="/opt/test24.txt";
-        ofstream fout24(filename24);
-        string filename25="/opt/test25.txt";
-        ofstream fout25(filename25);
-        */
-
-/*
-
-        for(int i = 0; i < rows; i++) {
-            for(int j = 0; j < cols; j++) {
-
-             fout5<<((int)matArr(i,j))<<",";
-             
-
-        }
-         fout5<<endl;
-     }
-     fout5.close();
-
-*/
-
-
 
 
 
