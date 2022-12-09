@@ -11,8 +11,7 @@ using namespace cv;
         for(int i = 0; i <src.arows ; ++i)  {    
             for(int j = 0; j <src.acols; ++j) {    
                  if(src(i,j)>pixelThreshold){
-                 //Pointlabel.at<uchar>(i,j)=0;
-                 pLablel[i*src.acols+j]=0;
+                   pLablel[i*src.acols+j]=0;
                  }
             }    
         }  
