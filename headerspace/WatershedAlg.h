@@ -1,7 +1,6 @@
 #ifndef WATERSHEDALG_H
 #define WATERSHEDALG_H
 #include"../functionspace/buffer.cpp"
-//#include "../structPixel/structPixel.cpp"
 #include<iostream>
 #include <fstream>
 #include <opencv2/opencv.hpp>
@@ -20,9 +19,8 @@ using namespace std;
 #define ZERO 0
 #define ONE 254
 #define STEP 1
-//#include <opencv2/imgcodecs.hpp>
-class WatershedAlg{
 
+class WatershedAlg{
 public:
 Mat makeImageGrayScale(Mat &image);
 Mat inverseImage(Mat &image);
@@ -34,5 +32,4 @@ Mat watershed(Array2D<int> &image, Array2D<int> &markers,Mat &duplImage,int &row
 void removeholesopt(Array2D<int> &src, int &pnumlThrshold, int &handlingType, int &neighbourType,int pixelThreshhold,int &rows,int &cols);
 void processImage(Mat &image,Mat &duplImage,Array2D<int> &threshmat,Array2D<int> &markers,Array2D<bool> &visArr,Array1D &plotx,Array1D &ploty,Array2D<int> &plots,Array2D<bool> &inprioq,Array2D<int> &markerMap,Array2D<int> &temp,Array2D<int> &nextSet,int**** arr4D,int**** mat4D,Bool2D &visBool,Array2D<int>&shouldBeZeroImage,Array2D<int>&threshMat,Array2D<int>&antiMat,Array2D<int>&distanMat);
 };
-
 #endif
